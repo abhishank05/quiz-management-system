@@ -11,20 +11,22 @@
         <div class="center">Welcome to Quiz Master!!</div>
         <div class="my_panel">
             <div class="center">Login</div>
+            <form action="/login" method="POST">
             <div class="input_form">
                 <div class="mb-3">
                     <label for="username">Email address</label>
-                    <input type="email" class="form-control" id="username" placeholder="name@example.com">
+                    <input type="email" class="form-control" id="username" name="user_name" placeholder="name@example.com">
                   </div>
                   <div class="mb-3">
                     <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="password">
+                    <input type="password" class="form-control" id="password" name=" password" placeholder="password">
                   </div>
                   <div  class="mb-3">
-                    <button type="button" class="btn btn-primary">Login</button>
-                    New User?<a href="#">Sign Up</a>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                    New User?<a href="/register">Sign Up</a>
                   </div>
             </div>
+            </form>
         </div>
     </div>
 </body>
