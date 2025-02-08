@@ -11,32 +11,34 @@
         <div class="center">Welcome to Quiz Master!!</div>
         <div class="my_panel">
             <div class="center">Registration</div>
+            <form action="/register" method="POST">
             <div class="input_form">
                 <div class="mb-3">
                     <label for="username">Username(E-mail)</label>
-                    <input type="email" class="form-control" id="username" placeholder="name@example.com">
+                    <input type="email" class="form-control" id="username" name="user_name" placeholder="name@example.com">
                   </div>
                   <div class="mb-3">
                     <label for="password">Password</label>
-                    <input type="password" class="form-control" id="password" placeholder="password">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="password">
                   </div>
                   <div class="mb-3">
                     <label for="fullname">Full Name</label>
-                    <input type="text" class="form-control" id="fullname" placeholder="IIT Madras">
+                    <input type="text" class="form-control" id="fullname" name="full_name" placeholder="IIT Madras">
                   </div>
                   <div class="mb-3">
                     <label for="qualification">Qualification</label>
-                    <input type="text" class="form-control" id="qualification" placeholder="Student">
+                    <input type="text" class="form-control" id="qualification" name="qualification" placeholder="Student">
                   </div>
                   <div class="mb-3">
                     <label for="dob">Date of Birth</label>
-                    <input type="date" class="form-control" id="dob" placeholder="Date">
+                    <input type="date" class="form-control" id="dob" name="dob" placeholder="Date">
                   </div>
                   <div  class="mb-3">
-                    <button type="button" class="btn btn-primary">Submit</button>
+                    <button type="submit" class="btn btn-primary">Submit</button>
                     Exisisting User?<a href="/login">Login</a>
                   </div>
             </div>
+            </form>
         </div>
     </div>
 </body>

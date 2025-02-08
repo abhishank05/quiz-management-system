@@ -30,6 +30,7 @@ class Chapter(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     name=db.Column(db.String,nullable=False)
     description=db.Column(db.String,nullable=False)
+    subject_id = db.Column(db.Integer, db.ForeignKey("subject.id"), nullable=False)
     quizes=db.relationship("Quiz",cascade="all,delete",backref="chapter",lazy=True)
 
 #Fourth Entity Quiz
@@ -61,6 +62,7 @@ class Scores(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     quiz_id=db.Column(db.Integer,db.ForeignKey("quiz.id"),nullable=False)
     user_id=db.Column(db.Integer,db.ForeignKey("user_info.id"),nullable=False)
+    question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
     time_stamp_of_attempt=db.Column(db.Time,nullable=False)
     total_scored=db.Column(db.Float,default=0)
     users=db.relationship("User_Info",cascade="all,delete",backref="scores",lazy=True)
