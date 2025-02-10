@@ -37,3 +37,8 @@
     margin: auto;
     color:rgb(5,5,110);
 }
+.error{
+    text-align: center;
+    margin: auto;
+    color:red;
+}
