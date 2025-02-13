@@ -1,42 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="/static/main.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <title>User Dashboard</title>
-</head>
-<body>
-    <h3>Welcome to Quiz Master</h3>
-    <div class="my_container">
-        <div class="center">User Dashboard</div>
-        <div class="my_panel">
-            <div class="outer_box">
-            <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-                <div class="collapse navbar-collapse" id="navbarText">
-                    <ul class="navbar-nav mr-auto">
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="#">Scores</a>
-                        </li>
-                        <li class="nav-item active">
-                          <a class="nav-link" href="#">Summary </a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link" href="#">Logout</a>
-                        </li>
-                      </ul>
-                      <form class="form-inline">
-                        <input class="form-control mr-sm-2" type="search" placeholder="Search">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                    </form>
-                  <span class="navbar-text">
-                    Welcome User
-                  </span>
-                </div>
-                <!-- End of navbar -->
-              </nav>
+{%extends "user_layout.html"%}
+{%block content %}
              <!-- Table which contains info abt the upcoming quizes in user dashboard -->
                   <table class="table table-bordered">
                     <thead>
@@ -82,8 +45,4 @@
                     </tbody>
                 </table>
                 
-        </div>
-        </div>
-    </div>
-</body>
-</html>
+{%endblock%}

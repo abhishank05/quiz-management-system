@@ -52,7 +52,7 @@ class Questions(db.Model):
     option1=db.Column(db.String,nullable=False)
     option2=db.Column(db.String,nullable=False)
     option3=db.Column(db.String,nullable=False)
-    option4=db.Column(db.String,nullable=False)
+    option4=db.Column(db.String,nullable=False) 
     correct_option=db.Column(db.String,nullable=False)
     scores=db.relationship("Scores",cascade="all,delete",backref="questions",lazy=True)
 

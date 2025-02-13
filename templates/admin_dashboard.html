@@ -1,71 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <link rel="stylesheet" href="/static/main.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <title>Admin Dashboard</title>
-</head>
-<body>
-    <h3>Welcome to Quiz Master</h3>
-    <div class="my_container">
-        <div class="center">Admin Dashboard</div>
-        <div class="my_panel">
-            <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #e3f2fd;">
-                 
-                <div class="collapse navbar-collapse" id="navbarText">
-                  <ul class="navbar-nav mr-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Quiz</a>
-                    </li>
-                    <li class="nav-item active">
-                      <a class="nav-link" href="#">Home <span class="sr-only">Summary</span></a>
-                    </li>
-                    <li class="nav-item">
-                      <a class="nav-link" href="#">Logout</a>
-                    </li>
-                  </ul>
-                  <form class="form-inline">
-                    <input class="form-control mr-sm-2" type="search" placeholder="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-                </form>
-                  <span class="navbar-text">
-                    Welcome Admin
-                  </span>
-                </div>
-              </nav>
+{%extends "admin_layout.html"%}    <!--Inherited all nav features-->
+{%block content %}
               <div class="container">
+                {%if subject%}
                 <div class="row">
+                    {%for sub in subject%}
                   <div class="col">
                     <!-- Subject1 Card here -->
                     <div class="card" style="width: 18rem;">
                         <div class="card-body">
-                          <h5 class="card-title">Quantum Physics</h5>
-                          <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+                          <h5 class="card-title">{{subject.name}}</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">{{subject.description}}/h6>
+                          {%if subject.chapters%}
+                        <table>
+                            <tr>
+                                <th> Subject ID</th>
+                                <th>Name of Subject</th>
+                                <th>Description of Subject</th>
+                                {%for chapter in subject.chapters%}
+                                <tr>
+                                    <td>
+                                        {{chapter.id}}
+                                        {{chapter.name}}
+                                        {{chapter.description}}
+
+                                    </td>
+                                </tr>
+                            </tr>
+                            {%endfor%}
+                          </table>
+                          {%else%}
+                          <p>No Subjects here!!</p>
+                          {%endif%}
                           <button type="button" class="btn btn-outline-primary">+Add Chapter</button>
                         </div>
                       </div>
+                      <!-- End of Subject1 -->
                   </div>
-                  <div class="col">
-                    <!-- Subject2 Card here -->
-                    <div class="card" style="width: 18rem;">
-                        <div class="card-body">
-                          <h5 class="card-title">Machine Learning </h5>
-                          <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6>
-                          <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
-                          <button type="button" class="btn btn-outline-primary">+Add Chapter</button>
-                        </div>
-                      </div>
-                  </div>
-                  
+                  {%endfor%}
+                </div>   
+                {%else%}
+                 <h3 class="center"> No Chapters are available!!</h3>
+                {%endif%}
               </div>
+              <div class="center">
+                <button type="button" class="btn btn-primary">+Add Subject</button>
+            </div>
         </div>
-        <div class="center">
-            <button type="button" class="btn btn-primary">+Add Subject</button>
-        </div>
-    </div>
-</body>
-</html>
+{%endblock%}
