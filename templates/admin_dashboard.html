@@ -19,9 +19,9 @@
                                 {%for chapter in subject.chapters%}
                                 <tr>
                                     <td>
-                                        {{chapter.id}}
-                                        {{chapter.name}}
-                                        {{chapter.description}}
+                                        {{subject.id}}
+                                        {{subject.name}}
+                                        {{subject.description}}
 
                                     </td>
                                 </tr>
@@ -29,7 +29,7 @@
                             {%endfor%}
                           </table>
                           {%else%}
-                          <p>No Subjects here!!</p>
+                          <p>No Chapters here!!</p>
                           {%endif%}
                           <button type="button" class="btn btn-outline-primary">+Add Chapter</button>
                         </div>
@@ -39,11 +39,11 @@
                   {%endfor%}
                 </div>   
                 {%else%}
-                 <h3 class="center"> No Chapters are available!!</h3>
+                 <h3 class="center"> No Subjects are available!!</h3>
                 {%endif%}
               </div>
               <div class="center">
-                <button type="button" class="btn btn-primary">+Add Subject</button>
+                <a href="/subject/{{name}}" type="button" class="btn btn-primary">+Add Subject</a>
             </div>
         </div>
 {%endblock%}

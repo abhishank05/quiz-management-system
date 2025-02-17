@@ -1,6 +1,6 @@
 #starting of app
 from datetime import datetime
-from flask import Flask, redirect,render_template,request, session
+from flask import Flask, redirect,render_template,request, session, url_for
 from models.model1 import *
 from flask import current_app as app
 
@@ -16,48 +16,13 @@ def signin():
         pwd=request.form.get("password")
         usr=User_Info.query.filter_by(email=uname,password=pwd).first()
         if usr and usr.qualification=="Administrator":
-            return render_template("admin_dashboard.html")
+            return redirect(url_for("admin_dashboard",name=uname)) # redirects to admin_dashboard fn route
         elif usr and usr.qualification!="Administrator":
-            return render_template("user_dashboard.html")
+           return redirect(url_for("user_dashboard",name=uname)) # redirects to user_dashboard fn route
         else:
             return render_template("login.html",msg="Invalid user Credentials ...")
 
     return render_template("login.html",msg="")
-'''
-@app.route("/login", methods=["GET", "POST"])
-def signin():
-    if request.method == "POST":
-        uname = request.form.get("user_name")
-        pwd = request.form.get("password")
-        print(pwd)
-
-        # Fetch user by email
-        usr = User_Info.query.filter_by(email=uname).first()
-
-        if usr:
-            print("User found:", usr.email)
-            
-            # Check if the user is an Administrator
-            if usr.qualification == "Administrator":
-                print("User is an Administrator")
-                
-                # Verify password
-                if usr.password == pwd:
-                    print("Password matches!")
-                    session['user_id'] = usr.id
-                    return render_template("admin_dashboard.html")
-                else:
-                    print("Password mismatch!")
-                    return render_template("login.html", error="Incorrect password.")
-            else:
-                print("User is not an Administrator")
-                return render_template("login.html", error="Access denied. Not an Administrator.")
-        else:
-            print("User not found")
-            return render_template("login.html", error="User does not exist.")  # Handle NoneType here
-
-    return render_template("login.html")
-'''
 
 @app.route("/register",methods=["GET","POST"])
 def signup():
@@ -67,16 +32,47 @@ def signup():
         fname=request.form.get("full_name")
         qual=request.form.get("qualification")
         dob=request.form.get("dob")
-        dob_date = datetime.strptime(dob, '%Y-%m-%d').date()    
+        if dob:
+            dob_date = datetime.strptime(dob, '%Y-%m-%d').date()
+        else:
+            dob_date=None    
         new_usr=User_Info(email=uname,password=pwd,full_name=fname,qualification=qual,dob=dob_date)
         if new_usr:
             return render_template("signup.html",msg="Sorry,the mail is already registered!!!")
         db.session.add(new_usr)
         db.session.commit()
+        db.session.close()
         return render_template("login.html")
     
     return render_template("signup.html")
 
+#common route for admin dashboard
+@app.route('/admin/<name>')
+def admin_dashboard(name):
+    subject=get_subject()
+    return render_template("admin_dashboard.html",name=name,subject=subject)
 
+#common route for user dashboard
+@app.route('/user/<name>')
+def user_dashboard(name):
+    return render_template("user_dashboard.html",name=name)
 
 # Many controllers/Routes here
+@app.route('/subject/<name>',methods=["GET","POST"])
+def add_subject(name):
+    if request.method=='POST':
+        sub_id=request.form.get('id')
+        sub_name=request.form.get('name')
+        des=request.form.get('description')
+        #user_id=request.form.get('user_id')
+        new_subj=Subject(id=sub_id,name=sub_name,description=des)
+        db.session.add(new_subj)
+        db.session.commit()
+        db.session.close()
+        return redirect(url_for("admin_dashboard",name=name))
+
+    return render_template("add_subject.html")
+
+def get_subject():
+    subject=Subject.query.all()
+    return subject
