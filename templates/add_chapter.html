@@ -1,0 +1,29 @@
+{%extends "admin_layout.html"%}    <!--Inherited all nav features-->
+{%block content %}
+            <div class="center">Add Chapter</div>
+            <form action="#" method="POST">
+            <div class="input_form">
+              <div class="mb-3">
+                <label for="subject_id">Subject_ID</label>
+                <input type="text" class="form-control" id="sub_id" name="sub_id" value= "{{sub_id}}" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="chapter_id">Chapter ID</label>
+                <input type="text" class="form-control" id="chapter_id" name="chapter_id" placeholder="chapter id">
+              </div>
+                <div class="mb-3">
+                    <label for="name">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="chapter name">
+                  </div>
+                  <div class="mb-3">
+                    <label for="description">Description</label>
+                    <input type="text" class="form-control" id="description" name="description" placeholder="description for chapter">
+                  </div>         
+
+                  <div  class="mb-3">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <a href="/login" type="button" class="btn btn-primary">Cancel</a>
+                  </div>
+            </div>
+            </form>
+{%endblock%}

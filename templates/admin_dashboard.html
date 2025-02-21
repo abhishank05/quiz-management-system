@@ -1,41 +1,40 @@
 {%extends "admin_layout.html"%}    <!--Inherited all nav features-->
 {%block content %}
               <div class="container">
-                {%if subject%}
+                {%if subjects%}
                 <div class="row">
-                    {%for sub in subject%}
-                  <div class="col">
+                  {%for sub in subjects%}
+                    <div class="col">
                     <!-- Subject1 Card here -->
                     <div class="card" style="width: 18rem;">
                         <div class="card-body">
-                          <h5 class="card-title">{{subject.name}}</h5>
-                          <h6 class="card-subtitle mb-2 text-muted">{{subject.description}}/h6>
-                          {%if subject.chapters%}
-                        <table>
-                            <tr>
-                                <th> Subject ID</th>
-                                <th>Name of Subject</th>
-                                <th>Description of Subject</th>
-                                {%for chapter in subject.chapters%}
-                                <tr>
-                                    <td>
-                                        {{subject.id}}
-                                        {{subject.name}}
-                                        {{subject.description}}
-
-                                    </td>
-                                </tr>
-                            </tr>
-                            {%endfor%}
-                          </table>
+                          <h5 class="card-title">{{sub.name}}</h5>
+                          <h6 class="card-subtitle mb-2 text-muted">{{sub.description}}</h6>
+                          {%if sub.chapters%}
+                            <table>
+                              <tr>
+                                <th>Chapter ID</th>
+                                <th>Chap Name</th>
+                                <th>Chap Description</th>
+                              </tr>
+                              {%for chapter in sub.chapters%}
+                              <tr>
+                                <td>
+                                  {{chapter.id}}
+                                  {{chapter.name}}
+                                  {{chapter.description}}
+                                </td>
+                              </tr>
+                              {%endfor%}
+                            </table>
                           {%else%}
-                          <p>No Chapters here!!</p>
+                            <p>No Chapters here!!</p>
                           {%endif%}
-                          <button type="button" class="btn btn-outline-primary">+Add Chapter</button>
+                          <a href ="/chapter/{{sub.id}}/{{name}}" type="button" class="btn btn-outline-primary">+Add Chapter</a>
                         </div>
                       </div>
                       <!-- End of Subject1 -->
-                  </div>
+                    </div>
                   {%endfor%}
                 </div>   
                 {%else%}

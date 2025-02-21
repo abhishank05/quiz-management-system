@@ -3,6 +3,9 @@ from datetime import datetime
 from flask import Flask, redirect,render_template,request, session, url_for
 from models.model1 import *
 from flask import current_app as app
+from sqlalchemy import create_engine
+
+engine = create_engine('sqlite:///mydatabase.db', connect_args={'timeout': 15})
 
 @app.route("/")
 def home():
@@ -16,6 +19,7 @@ def signin():
         pwd=request.form.get("password")
         usr=User_Info.query.filter_by(email=uname,password=pwd).first()
         if usr and usr.qualification=="Administrator":
+            subject=get_subjects()
             return redirect(url_for("admin_dashboard",name=uname)) # redirects to admin_dashboard fn route
         elif usr and usr.qualification!="Administrator":
            return redirect(url_for("user_dashboard",name=uname)) # redirects to user_dashboard fn route
@@ -41,7 +45,6 @@ def signup():
             return render_template("signup.html",msg="Sorry,the mail is already registered!!!")
         db.session.add(new_usr)
         db.session.commit()
-        db.session.close()
         return render_template("login.html")
     
     return render_template("signup.html")
@@ -49,8 +52,8 @@ def signup():
 #common route for admin dashboard
 @app.route('/admin/<name>')
 def admin_dashboard(name):
-    subject=get_subject()
-    return render_template("admin_dashboard.html",name=name,subject=subject)
+    subject=get_subjects()
+    return render_template("admin_dashboard.html",name=name,subjects=subject)
 
 #common route for user dashboard
 @app.route('/user/<name>')
@@ -68,11 +71,27 @@ def add_subject(name):
         new_subj=Subject(id=sub_id,name=sub_name,description=des)
         db.session.add(new_subj)
         db.session.commit()
-        db.session.close()
+        
         return redirect(url_for("admin_dashboard",name=name))
 
     return render_template("add_subject.html")
 
-def get_subject():
+
+@app.route('/chapter/<sub_id>/<name>',methods=["GET","POST"])
+def add_chapter(sub_id,name):
+    if request.method=='POST':
+        chap_id=request.form.get('id')
+        chap_name=request.form.get('name')
+        des=request.form.get('description')
+        new_chap=Chapter(id=chap_id,name=chap_name,description=des,subject_id=sub_id)
+        db.session.add(new_chap)
+        db.session.commit()
+        return redirect(url_for("admin_dashboard",name=name))
+
+    return render_template("add_chapter.html",sub_id=sub_id,name=name)
+       
+
+#other supported function
+def get_subjects():
     subject=Subject.query.all()
     return subject
