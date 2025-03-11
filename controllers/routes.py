@@ -11,6 +11,19 @@ engine = create_engine('sqlite:///mydatabase.db', connect_args={'timeout': 15})
 def home():
     return render_template("index.html")
 
+@app.route("/quiz/<int:chapter_id>/<quiz_name>",methods=['GET','POST'])
+def quiz(chapter_id,quiz_name):
+    quiz = {
+        'chapter_id': chapter_id,
+        'quiz_name': quiz_name
+    }
+    return render_template("quizManagement_dashboard.html",quiz=quiz)
+
+@app.context_processor
+def inject_default_quiz():
+    # Define your default quiz here (you could also load this from a config or database)
+    default_quiz = {'chapter_id': 1, 'quiz_name': 'Math_Quiz'}
+    return dict(quiz=default_quiz)
 
 @app.route("/login",methods=["GET","POST"])
 def signin():
@@ -60,6 +73,10 @@ def admin_dashboard(name):
 def user_dashboard(name):
     return render_template("user_dashboard.html",name=name)
 
+@app.route('/quizManagement_dashboard/chapter_id/<quiz_name>')
+def quizManagement_dashboard(chapter_id,quiz_name):
+    return render_template("quizManagement_dashboard.html",chapter_id=chapter_id,quiz_name=quiz_name)
+
 # Many controllers/Routes here
 @app.route('/subject/<name>',methods=["GET","POST"])
 def add_subject(name):
@@ -89,7 +106,41 @@ def add_chapter(sub_id,name):
         return redirect(url_for("admin_dashboard",name=name))
 
     return render_template("add_chapter.html",sub_id=sub_id,name=name)
+
+@app.route('/ques/<quiz_id>/<id>',methods=["GET","POST"])
+def add_question(quiz_id,id):
+    if request.method=='POST':
+        ques_id=request.form.get('id')
+        ques_name=request.form.get('question_statement')
+        op1=request.form.get('option1')
+        op2=request.form.get('option2')
+        op3=request.form.get('option3')
+        op4=request.form.get('option4')
+        correct_op=request.form.get('correct_option')
+        new_ques=Questions(id=ques_id,question_statement=ques_name,quiz_id=quiz_id,option1=op1,option2=op2,option3=op3,option4=op4,correct_option=correct_op)
+        db.session.add(new_ques)
+        db.session.commit()
+        return redirect(url_for("quiz_dashboard",id=id))
+
+    return render_template("add_question.html",quiz_id=quiz_id,id=id)
        
+
+@app.route('/quiz/<int:chapter_id>/<quiz_name>',methods=["GET","POST"])
+def add_quiz(chapter_id,quiz_name):
+    print(f"Received request for chapter_id: {chapter_id}, quiz_name: {quiz_name}")
+    if request.method=='POST':
+        quiz_id=request.form.get('id')
+        quiz_name_from_form=request.form.get('quiz_name')
+        date_quiz=request.form.get('date_of_quiz')
+        duration=request.form.get('time_duration')
+        remark=request.form.get('remarks')
+        new_quiz=Quiz(id=quiz_id,chapter_id=chapter_id,quiz_name=quiz_name_from_form,date_of_quiz=date_quiz,time_duration=duration,remarks=remark) #parameters here have to match the definitions in the model
+        db.session.add(new_quiz)
+        db.session.commit()
+        return redirect(url_for("quizManagement_dashboard",chapter_id=chapter_id,quiz_name=quiz_name_from_form))
+    
+    return render_template("add_quiz.html",chapter_id=chapter_id,quiz_name=quiz_name)
+
 
 #other supported function
 def get_subjects():

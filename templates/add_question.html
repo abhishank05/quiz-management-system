@@ -1,0 +1,44 @@
+{%extends "quiz_layout.html"%}    <!--Inherited all nav features-->
+{%block content %}
+            <div class="center">Add Question</div>
+            <form action="#" method="POST">
+            <div class="input_form">
+              <div class="mb-3">
+                <label for="quiz_id">Quiz ID</label>
+                <input type="text" class="form-control" id="quiz_id" name="quiz_id" placeholder="quiz id" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="ques_id">Question_ID</label>
+                <input type="text" class="form-control" id="ques_id" name="ques_id" value= "{{question_id}}" >
+              </div>
+              <div class="mb-3">
+                <label for="name">Quiz_Statement</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="question name">
+              </div>
+              <div class="mb-3">
+                <label for="op1">Option 1</label>
+                <input type="text" class="form-control" id="op1" name="op1" placeholder="option 1">
+              </div>
+              <div class="mb-3">
+                <label for="op2">Option 2</label>
+                <input type="text" class="form-control" id="op2" name="op2" placeholder="option 2">
+              </div>          
+              <div class="mb-3">
+                <label for="op3">Option 3</label>
+                <input type="text" class="form-control" id="op3" name="op3" placeholder="option 3">
+              </div>
+              <div class="mb-3">
+                <label for="op4">Option 4</label>
+                <input type="text" class="form-control" id="op4" name="op4" placeholder="option 4">
+              </div>
+              <div class="mb-3">
+                <label for="correct_op">Correct_Option</label>
+                <input type="text" class="form-control" id="correct_op" name="correct_op" placeholder="correct option">
+              </div>
+              <div  class="mb-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="/quiz" type="button" class="btn btn-primary">Cancel</a>
+              </div>
+            </div>
+            </form>
+{%endblock%}

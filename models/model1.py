@@ -35,9 +35,10 @@ class Chapter(db.Model):
 
 #Fourth Entity Quiz
 class Quiz(db.Model):
-    __tablename__="quiz"
+    __tablename__="quiz"    
     id=db.Column(db.Integer,primary_key=True)
     chapter_id=db.Column(db.Integer,db.ForeignKey("chapter.id"),nullable=False)
+    quiz_name=db.Column(db.String,nullable=False)
     date_of_quiz=db.Column(db.Date,nullable=False)
     time_duration=db.Column(db.Time,nullable=False)
     remarks=db.Column(db.String,nullable=False)
@@ -45,7 +46,7 @@ class Quiz(db.Model):
 
 #Fifth Entity Questions
 class Questions(db.Model):
-    __tablename__="questions"
+    __tablename__="questions"   
     id=db.Column(db.Integer,primary_key=True)
     quiz_id=db.Column(db.Integer,db.ForeignKey("quiz.id"),nullable=False)
     question_statement=db.Column(db.String,nullable=False)

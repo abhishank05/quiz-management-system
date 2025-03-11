@@ -1,0 +1,37 @@
+{%extends "quiz_layout.html"%}    <!--Inherited all nav features-->
+{%block content %}
+            <div class="input_form">Add Quiz</div>
+            
+            <form action="#" method="POST">
+            <div class="input_form">
+              <div class="mb-3">
+                <label for="chapter_id">Chapter ID</label>
+                <input type="text" class="form-control" id="chapter_id" name="chapter_id" placeholder="chapter id">
+              </div>
+              <div class="mb-3">
+                <label for="quiz_id">Quiz_ID</label>
+                <input type="text" class="form-control" id="quiz_id" name="quiz_id" value= "{{quiz_id}}" >
+              </div>
+              <div class="mb-3">
+                <label for="name">Quiz_Name</label>
+                <input type="text" class="form-control" id="name" name="name" placeholder="quiz name">
+              </div>
+              <div class="mb-3">
+                <label for="date_quiz">Date_Of_Quiz</label>
+                <input type="date" class="form-control" id="date" name="date" placeholder="date of quiz">
+              </div>
+              <div class="mb-3">
+                <label for="time">Time_Duration</label>
+                <input type="datetime" class="form-control" id="time" name="time" placeholder="Time duration">
+              </div>          
+              <div class="mb-3">
+                <label for="remarks">Remarks</label>
+                <input type="text" class="form-control" id="remarks" name="remarks" placeholder="remarks for quiz">
+              </div> 
+              <div  class="mb-3">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="/quiz" type="button" class="btn btn-primary">Cancel</a>
+              </div>
+            </div>
+            </form>
+{%endblock%}
