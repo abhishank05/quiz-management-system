@@ -36,7 +36,7 @@ class Chapter(db.Model):
 #Fourth Entity Quiz
 class Quiz(db.Model):
     __tablename__="quiz"    
-    id=db.Column(db.Integer,primary_key=True)
+    id=db.Column(db.Integer,primary_key=True,autoincrement=True)
     chapter_id=db.Column(db.Integer,db.ForeignKey("chapter.id"),nullable=False)
     quiz_name=db.Column(db.String,nullable=False)
     date_of_quiz=db.Column(db.Date,nullable=False)
@@ -55,7 +55,7 @@ class Questions(db.Model):
     option3=db.Column(db.String,nullable=False)
     option4=db.Column(db.String,nullable=False) 
     correct_option=db.Column(db.String,nullable=False)
-    scores=db.relationship("Scores",cascade="all,delete",backref="questions",lazy=True)
+    # scores=db.relationship("Scores",cascade="all,delete",backref="questions",lazy=True)
 
 #Sixth Entity Scores
 class Scores(db.Model):
@@ -63,7 +63,7 @@ class Scores(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     quiz_id=db.Column(db.Integer,db.ForeignKey("quiz.id"),nullable=False)
     user_id=db.Column(db.Integer,db.ForeignKey("user_info.id"),nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
+    # question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
     time_stamp_of_attempt=db.Column(db.Time,nullable=False)
     total_scored=db.Column(db.Float,default=0)
     users=db.relationship("User_Info",cascade="all,delete",backref="scores",lazy=True)

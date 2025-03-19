@@ -1,37 +1,55 @@
-{%extends "quiz_layout.html"%}    <!--Inherited all nav features-->
-{%block content %}
-            <div class="input_form">Add Quiz</div>
-            
-            <form action="#" method="POST">
-            <div class="input_form">
-              <div class="mb-3">
-                <label for="chapter_id">Chapter ID</label>
-                <input type="text" class="form-control" id="chapter_id" name="chapter_id" placeholder="chapter id">
-              </div>
-              <div class="mb-3">
-                <label for="quiz_id">Quiz_ID</label>
-                <input type="text" class="form-control" id="quiz_id" name="quiz_id" value= "{{quiz_id}}" >
-              </div>
-              <div class="mb-3">
-                <label for="name">Quiz_Name</label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="quiz name">
-              </div>
-              <div class="mb-3">
-                <label for="date_quiz">Date_Of_Quiz</label>
-                <input type="date" class="form-control" id="date" name="date" placeholder="date of quiz">
-              </div>
-              <div class="mb-3">
-                <label for="time">Time_Duration</label>
-                <input type="datetime" class="form-control" id="time" name="time" placeholder="Time duration">
-              </div>          
-              <div class="mb-3">
-                <label for="remarks">Remarks</label>
-                <input type="text" class="form-control" id="remarks" name="remarks" placeholder="remarks for quiz">
-              </div> 
-              <div  class="mb-3">
-                <button type="submit" class="btn btn-primary">Submit</button>
-                <a href="/quiz" type="button" class="btn btn-primary">Cancel</a>
-              </div>
-            </div>
-            </form>
-{%endblock%}
+{% extends "quiz_layout.html" %}    <!-- Inherited all nav features -->
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <h3>Add Quiz</h3>
+  
+  
+  <form action="{{ url_for('add_quiz', chapter_id=chapter_id, quiz_name=quiz_name) }}" method="POST">
+    <div class="input_form">
+      <!-- Display Chapter ID (read-only) -->
+      <div class="mb-3">
+        <label for="chapter_id">Chapter ID: {{ chapter_id }}</label>
+        <!-- Optionally, you can include this as a hidden field if needed -->
+        <input type="text" name="chapter_id" value="{{ chapter_id }}">
+      </div>
+      
+      <!-- Quiz ID input; note the name is 'id' to match route code -->
+      <div class="mb-3">
+        <label for="quiz_id">Quiz_ID</label>
+        <input type="text" class="form-control" id="quiz_id" name="id" placeholder="Enter quiz ID">
+      </div>
+      
+      <!-- Quiz Name input; name 'quiz_name' to match the route -->
+      <div class="mb-3">
+        <label for="quiz_name">Quiz_Name</label>
+        <input type="text" class="form-control" id="quiz_name" name="quiz_name" placeholder="Enter quiz name">
+      </div>
+      
+      <!-- Date of Quiz input; name 'date_of_quiz' to match the route -->
+      <div class="mb-3">
+        <label for="date_of_quiz">Date_Of_Quiz</label>
+        <input type="date" class="form-control" id="date_of_quiz" name="date_of_quiz" placeholder="Select date">
+      </div>
+      
+      <!-- Time Duration input; name 'time_duration' to match the route -->
+      <div class="mb-3">
+        <label for="time_duration">Time_Duration</label>
+        <input type="text" class="form-control" id="time_duration" name="time_duration" placeholder="Enter time duration">
+      </div>
+      
+      <!-- Remarks input; name 'remarks' to match the route -->
+      <div class="mb-3">
+        <label for="remarks">Remarks</label>
+        <input type="text" class="form-control" id="remarks" name="remarks" placeholder="Enter remarks">
+      </div>
+      
+      <!-- Submit and Cancel Buttons -->
+      <div class="mb-3">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a href="{{ url_for('quizManagement_dashboard', chapter_id=chapter_id, quiz_name=quiz_name) }}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </div>
+  </form>
+{% endblock %}

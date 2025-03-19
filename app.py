@@ -17,6 +17,7 @@ def setup_app():
 
 setup_app()
 
+
 from controllers.routes import *
 
 if __name__=="__main__":

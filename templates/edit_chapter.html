@@ -1,0 +1,15 @@
+{%extends "admin_layout.html"%}    <!--Inherited all nav features-->
+{%block content %}
+            <div class="center">Edit Subject</div>
+            <form method="POST">
+              <label for="name">Chapter Name:</label>
+              <input type="text" name="name" value="{{ chapter.name }}" required>
+          
+              <label for="description">Description:</label>
+              <textarea name="description">{{ chapter.description }}</textarea>
+          
+              <button type="submit" class="btn btn-success">Save Changes</button>
+              <a href="{{ url_for('admin_dashboard',name=name) }}" class="btn btn-secondary">Cancel</a>
+          </form>
+          
+{%endblock%}

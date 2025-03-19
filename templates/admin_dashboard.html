@@ -1,46 +1,61 @@
-{%extends "admin_layout.html"%}    <!--Inherited all nav features-->
-{%block content %}
-              <div class="container">
-                {%if subjects%}
-                <div class="row">
-                  {%for sub in subjects%}
-                    <div class="col">
-                    <!-- Subject1 Card here -->
-                    <div class="card" style="width: 18rem;">
-                        <div class="card-body">
-                          <h5 class="card-title">{{sub.name}}</h5>
-                          <h6 class="card-subtitle mb-2 text-muted">{{sub.description}}</h6>
-                          {%if sub.chapters%}
-                            <table>
-                              <tr>
-                                <th>Chapter ID</th>
-                                <th>Chap Name</th>
-                                <th>Chap Description</th>
-                              </tr>
-                              {%for chapter in sub.chapters%}
-                              <tr>
-                                <td>{{chapter.id}}</td>
-                                <td>{{chapter.name}}</td>
-                                <td>{{chapter.description}}</td>
-                              </tr>
-                              {%endfor%}
-                            </table>
-                          {%else%}
-                            <p>No Chapters here!!</p>
-                          {%endif%}
-                          <a href ="/chapter/{{sub.id}}/{{name}}" type="button" class="btn btn-outline-primary">+Add Chapter</a>
-                        </div>
-                      </div>
-                      <!-- End of Subject1 -->
-                    </div>
-                  {%endfor%}
-                </div>   
-                {%else%}
-                 <h3 class="center"> No Subjects are available!!</h3>
-                {%endif%}
-              </div>
-              <div class="center">
-                <a href="/subject/{{name}}" type="button" class="btn btn-primary">+Add Subject</a>
+{% extends "admin_layout.html" %} <!-- Inherited all nav features -->
+{% block content %}
+<div class="container">
+    {% if subjects %}
+    <div class="row">
+        {% for sub in subjects %}
+        <div class="col">
+            <!-- Subject Card -->
+            <div class="card" style="width: 50rem;">
+                <div class="card-body">
+                    <!-- Subject Name as Hyperlink -->
+                    <h5 class="card-title">
+                        <a href="{{ url_for('subject_detail', subject_id=sub.id,name=sub.name) }}">
+                            {{ sub.name }}
+                        </a>
+                    </h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ sub.description }}</h6>
+
+                    {% if sub.chapters %}
+                    <table>
+                        <tr>
+                            <th>Chapter ID</th>
+                            <th>Chap Name</th>
+                            <th>Chap Description</th>
+                            <th>Actions</th>
+                        </tr>
+                        {% for chapter in sub.chapters %}
+                        <tr>
+                            <td>{{ chapter.id }}</td>
+                            <td>{{ chapter.name }}</td>
+                            <td>{{ chapter.description }}</td>
+                            <td>
+                                <a href="{{ url_for('edit_chapter', chapter_id=chapter.id,name=name) }}" class="btn btn-outline-warning">Edit</a>
+                                <form action="{{ url_for('delete_chapter', chapter_id=chapter.id,name=name) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this chapter?');">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    {% else %}
+                    <p>No Chapters here!!</p>
+                    {% endif %}
+
+                    <!-- Add Chapter Button -->
+                    <a href="{{ url_for('add_chapter', subject_id=sub.id, name=name) }}" class="btn btn-outline-primary">+Add Chapter</a>
+                </div>
             </div>
+            <!-- End of Subject Card -->
         </div>
-{%endblock%}
+        {% endfor %}
+    </div>
+    {% else %}
+    <h3 class="center">No Subjects are available!!</h3>
+    {% endif %}
+</div>
+
+<div class="center">
+    <a href="{{ url_for('add_subject', name=name) }}" class="btn btn-primary">+Add Subject</a>
+</div>
+{% endblock %}

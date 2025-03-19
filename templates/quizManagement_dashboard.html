@@ -1,34 +1,45 @@
 {%extends "quiz_layout.html"%}    <!--Inherited all nav features-->
 {%block content %}
+<p>Debug: chapter_id = {{ chapter_id }}</p>
+
               <div class="container">
                 {%if quizzes%}
                 <div class="row">
                   {%for quiz in quizzes%}
                     <div class="col">
                     <!--  Quiz1 Card here -->
-                    <div class="card" style="width: 18rem;">
+                    <div class="card" style="width: 50rem;">
                         <div class="card-body">
-                          <h5 class="card-title">{{quiz.quiz_name}}</h5>
-                          
+                          <a href="{{ url_for('quiz_detail', id=quiz.id) }}">
+                            <h5 class="card-title">{{quiz.quiz_name}}</h5>
+                          </a>
                           {%if quiz.questions%}
                             <table>
                               <tr>
                                 <th>Quiz ID</th>
-                                <th>Question ID</th>
                                 <th>Question Title</th>
+                                <th>Action</th>
                               </tr>
                               {%for ques in quiz.questions%}
                               <tr>
                                 <td>{{ques.quiz_id}}</td>
-                                <td>{{ques.id}}</td>
                                 <td>{{ques.question_statement}}</td>
+                                <td>
+                                  <a href="{{ url_for('edit_question',quiz_id=ques.quiz_id,id=ques.id) }}" class="btn btn-outline-warning">Edit</a>
+                                  <form action="{{ url_for('delete_question',id=ques.id) }}" method="POST" style="display:inline;">
+                                   <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this chapter?');">Delete</button>
+                                </form>
+                                </td>
                               </tr>
                               {%endfor%}
                             </table>
                           {%else%}
                             <p>No Questions here!!</p>
                           {%endif%}
-                          <a href ="/ques/{{quiz_id}}/{{id}}" type="button" class="btn btn-outline-primary">+Add Question</a> <!--passing quiz id to route with fn add question-->
+                          <a href="{{ url_for('add_question', quiz_id=quiz.id, id=quiz.chapter_id) }}" class="btn btn-outline-primary">
+                              + Add Question
+                          </a>
+                          
                         </div>
                       </div>
                       <!-- End of Quiz1 -->
@@ -41,7 +52,20 @@
               </div>
               <div class="center">
                 <!-- <a href="/quiz/{{chapter_id}}/{{quiz_name}}" type="button" class="btn btn-primary">+Add Quiz</a> -->
-                <a href="{{ url_for('add_quiz', chapter_id=chapter_id, quiz_name=quiz_name) }}" class="btn btn-primary">+Add Quiz</a>
+                {% if quiz %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('quizManagement_dashboard', chapter_id=quiz.chapter_id, quiz_name=quiz.quiz_name) }}">
+                      Quiz: {{ quiz.quiz_name }}
+                    </a>
+                  </li>
+                {% else %}
+                  <li class="nav-item" type="button">
+                    <a class="nav-link" href="{{ url_for('add_quiz', chapter_id=chapter_id, quiz_name=quiz_name) }}">
+                      Add Quiz
+                    </a>
+                  </li>
+                {% endif %}
+
             </div>
         </div>
 {%endblock%}

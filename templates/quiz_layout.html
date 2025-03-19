@@ -15,16 +15,21 @@
                 <div class="collapse navbar-collapse" id="navbarText">
                   <ul class="navbar-nav mr-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Home</a>
+                        <a class="nav-link" href="{{url_for('admin_dashboard')}}">Home</a>
                     </li>
                     <li class="nav-item active">
-                        <a class="nav-link" href="#">Quiz</a>
+                      {% if quiz %}
+                        <a class="nav-link" href="{{ url_for('quizManagement_dashboard', chapter_id=quiz.chapter_id, quiz_name=quiz.quiz_name) }}">Quiz</a>
+                      {% else %}
+                        <a class="nav-link" href="{{ url_for('add_quiz', chapter_id=1, quiz_name='default') }}">Add Quiz</a>
+                      {% endif %}
+
                     </li>
                     <li class="nav-item">
                       <a class="nav-link" href="#">Summary</a>
                     </li>
                     <li class="nav-item">
-                      <a class="nav-link" href="#">Logout</a>
+                      <a class="nav-link" href="{{url_for('signin')}}">Logout</a>
                     </li>
                   </ul>
                   <form class="d-flex" method="POST" action="/search/{{name}}">

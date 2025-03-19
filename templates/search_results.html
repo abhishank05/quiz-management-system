@@ -1,0 +1,60 @@
+{% extends "quiz_layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Search Results for "{{ search_txt }}"</h2>
+    
+    {% if results.subjects or results.chapters or results.quizzes or results.questions %}
+        {% if results.subjects %}
+            <h3>Subjects</h3>
+            <ul>
+                {% for subject in results.subjects %}
+                    <li>
+                        <a href="{{ url_for('subject_detail', subject_id=subject.id) }}">
+                            {{ subject.name }}
+                        </a> - {{ subject.description }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        {% if results.chapters %}
+            <h3>Chapters</h3>
+            <ul>
+                {% for chapter in results.chapters %}
+                    <li>
+                        {{ chapter.name }} - {{ chapter.description }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        {% if results.quizzes %}
+            <h3>Quizzes</h3>
+            <ul>
+                {% for quiz in results.quizzes %}
+                    <li>
+                        <a href="{{ url_for('quiz_detail', id=quiz.id) }}">
+                            {{ quiz.quiz_name }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        {% if results.questions %}
+            <h3>Questions</h3>
+            <ul>
+                {% for question in results.questions %}
+                    <li>
+                        {{ question.question_statement }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% else %}
+        <p>No results found.</p>
+    {% endif %}
+    
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "quiz_layout.html" %}
+{% block content %}
+<div class="container">
+  <h2>Edit Question</h2>
+  <form method="POST" action="{{ url_for('edit_question',id=ques.id) }}">
+    <div class="form-group">
+      <label for="question_statement">Question Statement</label>
+      <input type="text" class="form-control" id="question_statement" name="question_statement" 
+             value="{{ ques.question_statement }}" required>
+    </div>
+    <div class="form-group">
+      <label for="option1">Option 1</label>
+      <input type="text" class="form-control" id="option1" name="option1" 
+             value="{{ ques.option1 }}" required>
+    </div>
+    <div class="form-group">
+      <label for="option2">Option 2</label>
+      <input type="text" class="form-control" id="option2" name="option2" 
+             value="{{ ques.option2 }}" required>
+    </div>
+    <div class="form-group">
+      <label for="option3">Option 3</label>
+      <input type="text" class="form-control" id="option3" name="option3" 
+             value="{{ ques.option3 }}" required>
+    </div>
+    <div class="form-group">
+      <label for="option4">Option 4</label>
+      <input type="text" class="form-control" id="option4" name="option4" 
+             value="{{ ques.option4 }}" required>
+    </div>
+    <div class="form-group">
+      <label for="correct_option">Correct Option</label>
+      <input type="text" class="form-control" id="correct_option" name="correct_option" 
+             value="{{ ques.correct_option }}" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Update Question</button>
+    <!-- Cancel link goes back to the quiz management dashboard -->
+    <a href="{{ url_for('quizManagement_dashboard', chapter_id=ques.quiz.chapter_id, quiz_name=ques.quiz.quiz_name) }}" 
+       class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}
