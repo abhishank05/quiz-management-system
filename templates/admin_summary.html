@@ -1,0 +1,18 @@
+{% extends "admin_layout.html" %}
+{% block content %}
+<div class="container">
+    <h2>Subject-wise Top Scores</h2>
+    {% if summary_charts %}
+        {% for chart in summary_charts %}
+            <div class="mb-5">
+                <h3>{{ chart.subject }}</h3>
+                <!-- Use url_for to generate the correct path to static image -->
+                <img src="{{ url_for('static', filename=chart.img) }}" alt="Summary for {{ chart.subject }}" class="img-fluid">
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No score data available.</p>
+    {% endif %}
+    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+{% endblock %}

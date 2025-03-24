@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Quiz Score Summary</title>
+</head>
+<body>
+    <h2>Quiz Score Summary</h2>
+    <!-- Use url_for to generate the correct static URL -->
+    <img src="{{ url_for('static', filename=img_filename) }}" alt="Score Summary">
+    <br>
+    <a href="{{ url_for('user_dashboard') }}">Back to Dashboard</a>
+</body>
+</html>

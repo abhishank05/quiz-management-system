@@ -1,0 +1,35 @@
+{% extends "user_layout.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Your Quiz Scores</h2>
+    <hr>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Quiz ID</th>
+                <th>Quiz Name</th>
+                <th>Score</th>
+                <th>Date Attempted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for score in scores %}
+            <tr>
+                <td>{{ score.quiz_id }}</td>
+                <td>{{ score.quiz.quiz_name }}</td>
+                <td>
+                    {% set max_score = score.quiz.questions|length %}
+                    {% if max_score > 0 %}
+                      {{ (score.total_scored / max_score * 100) | round(2) }}%
+                    {% else %}
+                      N/A
+                    {% endif %}
+                </td>
+                <td>{{ score.time_stamp_of_attempt }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

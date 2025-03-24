@@ -61,10 +61,12 @@ class Questions(db.Model):
 class Scores(db.Model):
     __tablename__="scores"
     id=db.Column(db.Integer,primary_key=True)
-    quiz_id=db.Column(db.Integer,db.ForeignKey("quiz.id"),nullable=False)
+    quiz_id=db.Column(db.Integer,db.ForeignKey("quiz.id", ondelete="CASCADE", onupdate="CASCADE"),nullable=False)
     user_id=db.Column(db.Integer,db.ForeignKey("user_info.id"),nullable=False)
     # question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
-    time_stamp_of_attempt=db.Column(db.Time,nullable=False)
+    time_stamp_of_attempt=db.Column(db.DateTime,nullable=False)
     total_scored=db.Column(db.Float,default=0)
-    users=db.relationship("User_Info",cascade="all,delete",backref="scores",lazy=True)
+
+    quiz = db.relationship("Quiz", backref=db.backref("scores", cascade="all, delete-orphan", passive_deletes=True))
+    user = db.relationship("User_Info", backref=db.backref("scores", cascade="all, delete-orphan", passive_deletes=True))
 

@@ -4,6 +4,7 @@
 
 .my_container{
     border:2px solid black;
+    /* background-color: rgb(84, 84, 206); */
 }
 
 .my_panel{
@@ -14,7 +15,7 @@
 }
 
 .input_form{
-    border: 1px solid blue;
+    border: 1px solid brown;
     width:600px;
     height:600px;
     margin:auto;
@@ -23,14 +24,28 @@
     border-radius: 10px;
     font-size: 16px;
     text-align: justify;
+    background-color:navajowhite;
 }
 
+.input_form1{
+    border: 1px solid blue;
+    width:600px;
+    height:750px;
+    margin:auto;
+    margin-top:20px;
+    padding:10px;
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: justify;
+    background-color:aqua;
+}
 .outer_box{
     border: 1px solid orange;
     margin:auto;
     padding:10px;
     border-radius: 10px;
     text-align: justify;
+
 }
 .center{
     text-align: center;

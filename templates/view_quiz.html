@@ -1,0 +1,42 @@
+{% extends "user_layout.html" %}
+{% block content %}
+
+<div class="container">
+    <h2 class="text-center">Quiz Details</h2>
+    <table class="table table-bordered">
+        <tr>
+            <th>Quiz ID</th>
+            <td>{{ quiz.id }}</td>
+        </tr>
+        <tr>
+            <th>Quiz Name</th>
+            <td>{{ quiz.quiz_name }}</td>
+        </tr>
+        <tr>
+            <th>Subject Name</th>
+            <td>{{ quiz.chapter.subject.name }}</td>
+        </tr>
+        <tr>
+            <th>Chapter Name</th>
+            <td>{{ quiz.chapter.name }}</td>
+        </tr>
+        <tr>
+            <th>No. of Questions</th>
+            <td>{{ quiz.questions|length }}</td>
+        </tr>
+        <tr>
+            <th>Scheduled Date</th>
+            <td>{{ quiz.date_of_quiz }}</td>
+        </tr>
+        <tr>
+            <th>Duration (hh:mm)</th>
+            <td>{{ quiz.time_duration }}</td>
+        </tr>
+    </table>
+
+    <div class="text-center">
+        <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Close</a>
+    </div>
+</div>
+
+{% endblock %}

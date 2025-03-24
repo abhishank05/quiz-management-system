@@ -1,5 +1,6 @@
 #starting of app
 from datetime import datetime
+import os
 from flask import Flask, flash, redirect,render_template,request, session, url_for
 from models.model1 import *
 from flask import current_app as app
@@ -52,6 +53,8 @@ def signin():
         uname=request.form.get("user_name")
         pwd=request.form.get("password")
         usr=User_Info.query.filter_by(email=uname,password=pwd).first()
+        session['user_id'] = usr.id 
+        session['name'] = usr.email 
         if usr and usr.qualification=="Administrator":
             session['name']=uname
             subject=get_subjects()
@@ -95,8 +98,105 @@ def admin_dashboard():
 #common route for user dashboard
 @app.route('/user')
 def user_dashboard():
-    name=session.get('name','')
-    return render_template("user_dashboard.html",name=name)
+    if "user_id" not in session:
+        flash("You need to log in first!", "danger")
+        return redirect(url_for("signin"))  # Redirect to login page
+
+    name = session.get("name", "User")
+    user_id = session.get("user_id")
+
+    search_query = request.args.get('search', '')
+
+    if search_query:
+        quizzes = Quiz.query.filter(Quiz.quiz_name.ilike(f"%{search_query}%")).all()
+    else:
+        quizzes = Quiz.query.all()
+
+    return render_template("user_dashboard.html", name=name, quizzes=quizzes, user_id=user_id, search_query=search_query)
+
+
+@app.route('/view_quiz/<int:quiz_id>')
+def view_quiz(quiz_id):
+    quiz=Quiz.query.get_or_404(quiz_id)
+    user_id=session.get("user_id")
+    return render_template('view_quiz.html',quiz=quiz,quiz_id=quiz_id,user_id=user_id)
+
+
+@app.route('/start_quiz/<int:quiz_id>', methods=['GET', 'POST'])
+def start_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    questions = quiz.questions  # Fetch all questions for this quiz
+    
+    if 'answers' not in session:
+        session['answers'] = {}  # Store user answers in session
+
+    question_index = int(request.args.get('q', 0))  # Get current question index from URL
+
+    if question_index >= len(questions):  # Prevent going out of bounds
+        return redirect(url_for('start_quiz', quiz_id=quiz_id, q=0))
+
+    question = questions[question_index]  # Get the current question
+    
+    if request.method == 'POST':
+        selected_option = request.form.get('answer')
+        question_id = request.form.get('question_id')
+        print(f"Before Updating Session: {session['answers']}")
+
+        if selected_option and question_id:
+            session['answers'][str(question_id)] = selected_option  # Store answer
+            session.modified = True
+        
+        print(f"After Updating Session: {session['answers']}")  # Debugging
+
+        if 'next' in request.form:  # Move to next question
+            return redirect(url_for('start_quiz', quiz_id=quiz_id, q=question_index + 1))
+        elif 'previous' in request.form and question_index > 0:  # Move to previous question
+            return redirect(url_for('start_quiz', quiz_id=quiz_id, q=question_index - 1))
+        elif 'submit' in request.form:  # Submit quiz
+            return redirect(url_for('submit_quiz', quiz_id=quiz_id))
+
+    user_id=session.get("user_id")
+    return render_template('start_quiz.html', quiz=quiz, question=question, question_index=question_index, total_questions=len(questions),user_id=session.get("user_id"))
+
+@app.route('/submit_quiz/<int:quiz_id>', methods=['POST', 'GET'])
+def submit_quiz(quiz_id):
+    quiz = Quiz.query.get_or_404(quiz_id)
+    user_id = session.get("user_id") # Example user ID (Replace this with actual logged-in user)
+    
+    print("Session Data at Submission:", session.get('answers', {}))
+
+    answers = session['answers']  # Fetch stored answers
+    print("User Answers:", answers)
+
+    total_score = 0
+    answers = session.get('answers', {})
+    for question in quiz.questions:
+        user_answer = answers.get(str(question.id))
+        if user_answer == question.correct_option:
+            total_score += 1
+
+    new_score = Scores(quiz_id=quiz_id, user_id=user_id, total_scored=total_score, time_stamp_of_attempt=db.func.current_timestamp())
+    db.session.add(new_score)
+    db.session.commit()
+
+    session.pop('answers', None)  # Clear session answers after submitting
+    flash(f"Quiz Submitted! Your Score: {total_score}/{len(quiz.questions)}", "success")
+    
+    return redirect(url_for('view_scores', user_id=session.get("user_id")))  # Redirect to user dashboard
+
+
+@app.route('/view_scores/', defaults={'user_id': None})
+@app.route('/view_scores/<int:user_id>')
+def view_scores(user_id):
+    user_id = user_id or session.get("user_id")
+    if not user_id:
+        flash("User not logged in!", "danger")
+        return redirect(url_for("login"))  # Redirect to login if needed
+    name = session.get("name")
+    scores = Scores.query.filter_by(user_id=user_id).all()
+    return render_template('view_scores.html', scores=scores, user_id=user_id,name=name)
+
+
 
 @app.route('/quizManagement_dashboard/<int:chapter_id>/<string:quiz_name>', methods=['GET', 'POST'])
 def quizManagement_dashboard(chapter_id, quiz_name):
@@ -107,6 +207,105 @@ def quizManagement_dashboard(chapter_id, quiz_name):
         return redirect(url_for("add_quiz", chapter_id=chapter_id, quiz_name=quiz_name))
 
     return render_template("quizManagement_dashboard.html", chapter_id=chapter_id, quiz_name=quiz_name, quizzes=quizzes,name=session.get("name"))
+
+
+@app.route('/admin_summary')
+def admin_summary():
+    # Check if user is logged in and (optionally) is an admin
+    if "user_id" not in session:
+        flash("Please log in first!", "danger")
+        return redirect(url_for("signin"))
+    # (Optional) Check for admin qualification here if needed
+
+    # Ensure the static folder exists
+    if not os.path.exists("static"):
+        os.makedirs("static")
+
+    # Get all subjects
+    subjects = Subject.query.all()
+    summary_charts = []  # List to store chart data for each subject
+
+    for subj in subjects:
+        quiz_names = []
+        max_scores = []
+        # Loop through chapters and quizzes of the subject
+        for chapter in subj.chapters:
+            for quiz in chapter.quizes:
+                # Get the highest score for this quiz
+                score_record = Scores.query.filter_by(quiz_id=quiz.id)\
+                                             .order_by(Scores.total_scored.desc())\
+                                             .first()
+                if score_record:
+                    quiz_names.append(quiz.quiz_name)
+                    max_scores.append(score_record.total_scored)
+        
+        # Create a chart only if there is at least one quiz with scores
+        if quiz_names:
+            plt.figure(figsize=(8, 5))
+            plt.bar(quiz_names, max_scores, color='skyblue')
+            plt.xlabel("Quiz")
+            plt.ylabel("Max Score")
+            plt.title(f"Top Scores for {subj.name}")
+            plt.xticks(rotation=45, ha='right')
+            plt.tight_layout()
+            
+            # Create a unique filename for each subject's chart
+            filename = f"admin_summary_{subj.id}.png"
+            img_path = os.path.join("static", filename)
+            plt.savefig(img_path)
+            plt.close()
+            
+            # Append the subject name and image filename to the list
+            summary_charts.append({
+                "subject": subj.name,
+                "img": filename
+            })
+
+    return render_template("admin_summary.html", summary_charts=summary_charts)
+
+
+@app.route('/summary')
+def score_summary():
+    # Ensure 'static' folder exists
+    if not os.path.exists("static"):
+        os.makedirs("static")
+
+    # File path to save the image
+    img_filename = "score_summary.png"  # just the filename
+    img_path = os.path.join("static", img_filename)
+
+    # Ensure the user is logged in
+    if "user_id" not in session:
+        return "Unauthorized access. Please log in.", 403
+
+    user_id = session["user_id"]
+
+    # Fetch user scores from the database
+    user_scores = db.session.query(Quiz.quiz_name, Scores.total_scored).join(Scores).filter(Scores.user_id == user_id).all()
+
+
+    if not user_scores:
+        return "No scores available", 404  # Handle case when no scores exist
+
+    # Extract quiz names and scores
+    quiz_names = [score[0] for score in user_scores]
+    scores = [score[1] for score in user_scores]
+
+    # Create the bar chart
+    plt.figure(figsize=(8, 5))
+    plt.bar(quiz_names, scores, color='skyblue')
+    plt.xlabel("Quiz Name")
+    plt.ylabel("Score")
+    plt.title("User Score Summary")
+
+    # Rotate x labels for better readability if too many quizzes
+    plt.xticks(rotation=45, ha='right')
+
+    # Save the figure in the static folder
+    plt.savefig(img_path)
+    plt.close()  # Close the plot to free memory
+
+    return render_template("user_summary.html", img_filename=img_filename)
 
 
 # Many controllers/Routes here
@@ -227,7 +426,7 @@ def edit_quiz(quiz_id):
         # Update quiz fields from form data
         quiz.quiz_name = request.form.get('quiz_name')
         quiz.date_of_quiz = datetime.strptime(request.form.get('date_of_quiz'), '%Y-%m-%d').date()
-        quiz.time_duration = datetime.strptime(request.form.get('time_duration'), '%H:%M').time()
+        quiz.time_duration = datetime.strptime(request.form.get('time_duration'), '%H:%M:%S').time()
         quiz.remarks = request.form.get('remarks')
         db.session.commit()
         flash("Quiz updated successfully", "success")
@@ -343,8 +542,6 @@ def search(name):
     }
     
     return render_template("search_results.html", results=results, search_txt=search_txt, name=name)
-
-
 
 
 #other supported function
