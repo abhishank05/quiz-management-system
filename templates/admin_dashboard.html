@@ -53,7 +53,59 @@
     {% else %}
     <h3 class="center">No Subjects are available!!</h3>
     {% endif %}
+
+    <br>
+    <h3>User Status</h3>
+    <br>
+    <br>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>User ID</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Qualification</th>
+                <th>Flagged Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.full_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.qualification }}</td>
+                <td>
+                    {% if user.flagged %}
+                        <span class="text-danger">Flagged 🚫</span>
+                    {% else %}
+                        <span class="text-success">Active ✅</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- Flag Button (Only shows if user is NOT flagged) -->
+                    {% if not user.flagged %}
+                    <form action="{{ url_for('flag_user', user_id=user.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-warning btn-sm">Flag User</button>
+                    </form>
+                    {% endif %}
+    
+                    <!-- Unflag Button (Only shows if user is already flagged) -->
+                    {% if user.flagged %}
+                    <form action="{{ url_for('unflag_user', user_id=user.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-success btn-sm">Unflag User</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
 </div>
+
+
 
 <div class="center">
     <a href="{{ url_for('add_subject', name=name) }}" class="btn btn-primary">+Add Subject</a>

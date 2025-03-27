@@ -14,6 +14,7 @@ class User_Info(db.Model):
     qualification=db.Column(db.String,nullable=False)
     dob=db.Column(db.Date,nullable=False)
     subjects=db.relationship("Subject",cascade="all,delete",backref="user_info",lazy=True)#Cascade all,delete will remove all the child entries when the parent entry is deleted in the table
+    flagged = db.Column(db.Boolean, default=False)
 
 #Second Entity Subject
 class Subject(db.Model):
@@ -55,15 +56,13 @@ class Questions(db.Model):
     option3=db.Column(db.String,nullable=False)
     option4=db.Column(db.String,nullable=False) 
     correct_option=db.Column(db.String,nullable=False)
-    # scores=db.relationship("Scores",cascade="all,delete",backref="questions",lazy=True)
-
+    
 #Sixth Entity Scores
 class Scores(db.Model):
     __tablename__="scores"
     id=db.Column(db.Integer,primary_key=True)
     quiz_id=db.Column(db.Integer,db.ForeignKey("quiz.id", ondelete="CASCADE", onupdate="CASCADE"),nullable=False)
     user_id=db.Column(db.Integer,db.ForeignKey("user_info.id"),nullable=False)
-    # question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
     time_stamp_of_attempt=db.Column(db.DateTime,nullable=False)
     total_scored=db.Column(db.Float,default=0)
 

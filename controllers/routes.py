@@ -2,36 +2,47 @@
 from datetime import datetime
 import os
 from flask import Flask, flash, redirect,render_template,request, session, url_for
-from models.model1 import *
+from models.model1 import Chapter, Questions, Quiz, Scores, Subject, User_Info, db
 from flask import current_app as app
 from sqlalchemy import create_engine
 import matplotlib.pyplot as plt
+from werkzeug.security import generate_password_hash
 
-engine = create_engine('sqlite:///mydatabase.db', connect_args={'timeout': 15})
+import time
+from sqlalchemy.exc import OperationalError
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
 def setup_admin():
-    # Create tables if they don't exist
-    db.create_all()
-    # Check if an admin already exists
-    if not User_Info.query.first():
-        # Default admin credentials
-        id=1
-        full_name = "admin"
-        email = "admin@iitm.ac.in"
-        password = "Admin123"
-        role = "Administrator"
-        dob="1995-02-07"
-        # Hash the password
-        hashed_password = generate_password_hash(password) # type: ignore
-        # Create and add the admin
-        new_admin = User_Info(id=id,email = email, password=hashed_password,full_name=full_name, qualification=role,dob=dob)
-        db.session.add(new_admin)
-        db.session.commit()
-        print(f"Admin user '{full_name}' has been created.")
+    # Ensure database tables exist
+    with app.app_context():  # Ensure this runs within Flask's app context
+        db.create_all()
+
+        # Check if an admin user already exists
+        existing_admin = User_Info.query.filter_by(qualification="Administrator").first()
+        
+        if not existing_admin:  # Only create admin if none exists
+            full_name = "admin"
+            email = "admin@iitm.ac.in"
+            password = "Admin1234"
+            role = "Administrator"
+            dob = "1995-02-07"
+
+            # Hash the password
+            hashed_password = generate_password_hash(password)  # type: ignore
+
+            # Create the admin user (id is auto-generated)
+            new_admin = User_Info(email=email, password=hashed_password, full_name=full_name, qualification=role, dob=dob)
+
+            db.session.add(new_admin)
+            db.session.commit()
+            db.session.close()
+
+            print(f"✅ Admin user '{full_name}' has been created.")
+        else:
+            print("⚠️ Admin already exists. No new admin created.")
 
 
 
@@ -52,7 +63,15 @@ def signin():
     if request.method=="POST":
         uname=request.form.get("user_name")
         pwd=request.form.get("password")
-        usr=User_Info.query.filter_by(email=uname,password=pwd).first()
+        usr=User_Info.query.filter_by(email=uname).first()
+        print(f"Debug: uname = {uname}, pwd = {pwd}")
+        if usr is None:
+            return render_template("login.html", msg="Invalid user Credentials ...")
+        
+        if usr.flagged:
+            flash('Your account has been flagged. Contact the administrator.', 'danger')
+            return redirect(url_for('signin'))
+
         session['user_id'] = usr.id 
         session['name'] = usr.email 
         if usr and usr.qualification=="Administrator":
@@ -66,26 +85,38 @@ def signin():
 
     return render_template("login.html",msg="")
 
-@app.route("/register",methods=["GET","POST"])
+@app.route("/register", methods=["GET", "POST"])
 def signup():
     if request.method == "POST":
-        uname=request.form.get("user_name")
-        pwd=request.form.get("password")
-        fname=request.form.get("full_name")
-        qual=request.form.get("qualification")
-        dob=request.form.get("dob")
-        if dob:
-            dob_date = datetime.strptime(dob, '%Y-%m-%d').date()
-        else:
-            dob_date=None    
-        new_usr=User_Info(email=uname,password=pwd,full_name=fname,qualification=qual,dob=dob_date)
-        if new_usr:
-            return render_template("signup.html",msg="Sorry,the mail is already registered!!!")
-        db.session.add(new_usr)
-        db.session.commit()
-        return render_template("login.html")
-    
+        uname = request.form.get("user_name")
+        pwd = request.form.get("password")
+        fname = request.form.get("full_name")
+        qual = request.form.get("qualification")
+        dob = request.form.get("dob")
+
+        dob_date = datetime.strptime(dob, '%Y-%m-%d').date() if dob else None  
+        existing_user = User_Info.query.filter_by(email=uname).first()
+
+        if existing_user:
+            return render_template("signup.html", msg="Sorry, the email is already registered!")
+
+        hashed_pwd = generate_password_hash(pwd)
+        new_usr = User_Info(email=uname, password=hashed_pwd, full_name=fname, qualification=qual, dob=dob_date)
+
+        try:
+            db.session.add(new_usr)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()  # Rollback transaction to prevent locks
+            print(f"Database error: {e}")  # Print the actual error
+            return render_template("signup.html", msg=f"Database error: {e}")
+        finally:
+            db.session.close()  # Ensure session is closed
+
+        return render_template("login.html", msg="Registration successful! Please log in.")
+
     return render_template("signup.html")
+
 
 #common route for admin dashboard
 @app.route('/admin')
@@ -93,7 +124,9 @@ def admin_dashboard():
     name=session.get('name','Admin')
     subject=get_subjects()
     quiz_obj=Quiz.query.first()
-    return render_template("admin_dashboard.html",name=name,subjects=subject,quiz=quiz_obj)
+    users = User_Info.query.filter(User_Info.qualification != "Administrator").all()
+    return render_template("admin_dashboard.html",name=name,subjects=subject,quiz=quiz_obj,users=users)
+
 
 #common route for user dashboard
 @app.route('/user')
@@ -113,6 +146,48 @@ def user_dashboard():
         quizzes = Quiz.query.all()
 
     return render_template("user_dashboard.html", name=name, quizzes=quizzes, user_id=user_id, search_query=search_query)
+
+
+
+@app.route('/user/flag/<int:user_id>', methods=['POST'])
+def flag_user(user_id):
+    user = User_Info.query.get(user_id)
+    if user:
+        user.flagged = True
+        db.session.commit()
+        flash(f"User {user.full_name} has been flagged!", "warning")
+    return redirect(url_for("admin_dashboard"))
+
+@app.route('/user/unflag/<int:user_id>', methods=['POST'])
+def unflag_user(user_id):
+    user = User_Info.query.get(user_id)
+    if user:
+        user.flagged = False
+        db.session.commit()
+        flash(f"User {user.full_name} has been unflagged!", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route('/quiz/attempt/<int:quiz_id>', methods=['GET', 'POST'])
+def attempt_quiz(quiz_id):
+    if 'user_id' not in session:
+        flash('Please log in to attempt the quiz.', 'danger')
+        return redirect(url_for('login'))
+
+    user = User_Info.query.get(session['user_id'])
+
+    if not user:
+        flash('User not found.', 'danger')
+        return redirect(url_for('login'))
+
+    quiz = Quiz.query.get_or_404(quiz_id)
+
+    # BLOCK FLAGGED USERS FROM VIEWING OR SUBMITTING THE QUIZ
+    if user.flagged:
+        flash('You are flagged and cannot attempt or submit quizzes. Contact admin.', 'danger')
+        return redirect(url_for('signin'))
+
+    return render_template('quiz_attempt.html', quiz=quiz, user=user)
 
 
 @app.route('/view_quiz/<int:quiz_id>')
@@ -301,6 +376,8 @@ def score_summary():
     # Rotate x labels for better readability if too many quizzes
     plt.xticks(rotation=45, ha='right')
 
+    plt.yscale("linear")
+    plt.yticks([2, 4, 6, 8, 10]) 
     # Save the figure in the static folder
     plt.savefig(img_path)
     plt.close()  # Close the plot to free memory
@@ -322,7 +399,6 @@ def add_subject(name):
         sub_id=request.form.get('id')
         sub_name=request.form.get('name')
         des=request.form.get('description')
-        #user_id=request.form.get('user_id')
         new_subj=Subject(id=sub_id,name=sub_name,description=des)
         db.session.add(new_subj)
         db.session.commit()
@@ -381,7 +457,6 @@ def delete_chapter(chapter_id,name):
     return redirect(url_for("admin_dashboard"))  # Redirect after deletion
 
 
-
 #CRUD OPERATIONS for quiz
 
 @app.route('/quiz_detail/<int:id>', methods=["GET", "POST"])
@@ -393,7 +468,6 @@ def quiz_detail(id):
 def add_quiz(chapter_id, quiz_name):
     if request.method == 'POST':
         # Get form values for creating a new quiz
-        #quiz_id = request.form.get('id')
         quiz_name_from_form = request.form.get('quiz_name')
         date_quiz_str = request.form.get('date_of_quiz')
         date_quiz = datetime.strptime(date_quiz_str, '%Y-%m-%d').date()
@@ -402,7 +476,6 @@ def add_quiz(chapter_id, quiz_name):
         remark = request.form.get('remarks')
         
         new_quiz = Quiz(
-            #id=quiz_id, 
             chapter_id=chapter_id, 
             quiz_name=quiz_name_from_form,
             date_of_quiz=date_quiz, 
@@ -492,8 +565,6 @@ def add_question(quiz_id, id):
 def edit_question(id):
     ques = Questions.query.get_or_404(id)
     if request.method == 'POST':
-        #ques.id=request.form.get('id')
-        #ques.quiz_id=request.form.get('quiz_id')
         ques.question_statement=request.form.get('question_statement')
         ques.option1=request.form.get('option1')
         ques.option2 = request.form.get('option2')

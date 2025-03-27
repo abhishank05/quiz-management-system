@@ -1,0 +1,29 @@
+{%extends "user_layout.html"%}
+{%block content %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Quiz ID</th>
+            <th>Quiz Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% if quizzes %}
+            {% for quiz in quizzes %}
+                <tr>
+                    <td>{{ quiz.id }}</td>
+                    <td>{{ quiz.quiz_name }}</td>
+                    <td>
+                        <a href="{{ url_for('view_quiz', quiz_id=quiz.id) }}" class="btn btn-primary">View</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="3" class="text-center text-danger">No quizzes found</td>
+            </tr>
+        {% endif %}
+    </tbody>
+</table>
+{%endblock%}
