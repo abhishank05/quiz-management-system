@@ -12,14 +12,7 @@ def setup_app():
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///quiz_master.sqlite3"#Having db file
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    # Allow access from multiple threads
-    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
-    'connect_args': {
-        'check_same_thread': False,  # Allows cross-thread usage
-        'timeout': 30  # Increase timeout to wait longer for locks
-    },
-    'poolclass': NullPool,  # Disable connection pooling
-}
+    
 
     db.init_app(app) #Flask app connected to db
     app.app_context().push()# Direct access to other modules

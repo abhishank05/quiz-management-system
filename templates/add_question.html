@@ -37,7 +37,7 @@
               </div>
               <div  class="mb-3">
                 <button type="submit" class="btn btn-primary">Submit</button>
-                <a href="/quiz" type="button" class="btn btn-primary">Cancel</a>
+                <a href="{{ url_for('quizManagement_dashboard', chapter_id=chapter_id, quiz_name=quiz_name) }}" type="button" class="btn btn-primary">Cancel</a>
               </div>
             </div>
             </form>

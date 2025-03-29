@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from werkzeug.security import generate_password_hash
 
 import time
-from sqlalchemy.exc import OperationalError
+#from sqlalchemy.exc import OperationalError
 
 @app.route("/")
 def home():
@@ -102,16 +102,6 @@ def signup():
 
         hashed_pwd = generate_password_hash(pwd)
         new_usr = User_Info(email=uname, password=hashed_pwd, full_name=fname, qualification=qual, dob=dob_date)
-
-        try:
-            db.session.add(new_usr)
-            db.session.commit()
-        except Exception as e:
-            db.session.rollback()  # Rollback transaction to prevent locks
-            print(f"Database error: {e}")  # Print the actual error
-            return render_template("signup.html", msg=f"Database error: {e}")
-        finally:
-            db.session.close()  # Ensure session is closed
 
         return render_template("login.html", msg="Registration successful! Please log in.")
 
@@ -236,7 +226,7 @@ def start_quiz(quiz_id):
 @app.route('/submit_quiz/<int:quiz_id>', methods=['POST', 'GET'])
 def submit_quiz(quiz_id):
     quiz = Quiz.query.get_or_404(quiz_id)
-    user_id = session.get("user_id") # Example user ID (Replace this with actual logged-in user)
+    user_id = session.get("user_id") # Example user ID 
     
     print("Session Data at Submission:", session.get('answers', {}))
 
@@ -290,7 +280,7 @@ def admin_summary():
     if "user_id" not in session:
         flash("Please log in first!", "danger")
         return redirect(url_for("signin"))
-    # (Optional) Check for admin qualification here if needed
+    
 
     # Ensure the static folder exists
     if not os.path.exists("static"):
@@ -393,7 +383,7 @@ def subject_detail(subject_id):
     return render_template("subject_detail.html", subject=subject)
 
 
-@app.route('/subject/<name>',methods=["GET","POST"])
+@app.route('/subject/<string:name>',methods=["GET","POST"])
 def add_subject(name):
     if request.method=='POST':
         sub_id=request.form.get('id')
@@ -403,7 +393,7 @@ def add_subject(name):
         db.session.add(new_subj)
         db.session.commit()
         return redirect(url_for("admin_dashboard"))
-    return render_template("add_subject.html")
+    return render_template("add_subject.html",name=session.get("name"))
 
 @app.route('/edit_subject/<int:subject_id>/<string:name>', methods=["GET", "POST"])
 def edit_subject(subject_id,name):
@@ -413,7 +403,7 @@ def edit_subject(subject_id,name):
         subject.description = request.form.get('description')
         db.session.commit()
         return redirect(url_for("admin_dashboard"))  # Redirect to admin dashboard
-    return render_template("edit_subject.html", subject=subject)
+    return render_template("edit_subject.html", subject=subject,name=session.get("name"))
 
 @app.route('/delete_subject/<int:subject_id>/<name>', methods=["POST"])
 def delete_subject(subject_id,name):
@@ -422,7 +412,7 @@ def delete_subject(subject_id,name):
     db.session.delete(subject)
     db.session.commit()
 
-    return redirect(url_for("admin_dashboard"))  # Redirect after deletion
+    return redirect(url_for("admin_dashboard",name=session.get("name")))  # Redirect after deletion
 
 #CRUD Operations for Chapter
 @app.route('/chapter/<int:subject_id>/<name>',methods=["GET","POST"])
@@ -445,7 +435,7 @@ def edit_chapter(chapter_id,name):
         chapter.description = request.form.get('description')
         db.session.commit()
         return redirect(url_for("admin_dashboard"))  # Redirect to admin dashboard
-    return render_template("edit_chapter.html", chapter=chapter)
+    return render_template("edit_chapter.html", chapter=chapter,name=name)
 
 @app.route('/delete_chapter/<int:chapter_id>/<string:name>', methods=["POST"])
 def delete_chapter(chapter_id,name):
@@ -454,7 +444,7 @@ def delete_chapter(chapter_id,name):
     db.session.delete(chapter)
     db.session.commit()
 
-    return redirect(url_for("admin_dashboard"))  # Redirect after deletion
+    return redirect(url_for("admin_dashboard",name=name))  # Redirect after deletion
 
 
 #CRUD OPERATIONS for quiz
@@ -489,7 +479,7 @@ def add_quiz(chapter_id, quiz_name):
         return redirect(url_for("quizManagement_dashboard", chapter_id=chapter_id, quiz_name=quiz_name_from_form))
     
     # GET branch: simply render the form to add a quiz.
-    return render_template("add_quiz.html", chapter_id=chapter_id, quiz_name=quiz_name)
+    return render_template("add_quiz.html", chapter_id=chapter_id, quiz_name=quiz_name,name=session.get("name"))
 
 
 @app.route('/edit_quiz/<int:quiz_id>', methods=['GET', 'POST'])
@@ -505,7 +495,7 @@ def edit_quiz(quiz_id):
         flash("Quiz updated successfully", "success")
         return redirect(url_for('quizManagement_dashboard', chapter_id=quiz.chapter_id, quiz_name=quiz.quiz_name,name=session.get("name")))
     # Render an edit form (create a template edit_quiz.html accordingly)
-    return render_template("edit_quiz.html", quiz=quiz)
+    return render_template("edit_quiz.html", quiz=quiz,name=session.get("name"))
 
 
 @app.route('/delete_quiz/<int:quiz_id>', methods=['POST'])
@@ -557,8 +547,8 @@ def add_question(quiz_id, id):
         quiz_id=quiz_id,
         id=id,
         chapter_id=quiz.chapter_id if quiz else 0,  # Use a safe fallback value
-        quiz_name=quiz.quiz_name if quiz else "default",
-        name=session.get("user_name")
+        quiz_name=quiz.quiz_name if quiz else "default"
+        
     )
 
 @app.route('/edit_question/<id>',methods=['GET','POST'])
@@ -573,7 +563,7 @@ def edit_question(id):
         ques.correct_option = request.form.get('correct_option')
         db.session.commit()
         flash("Question updated successfully", "success")
-        return redirect(url_for('quizManagement_dashboard', chapter_id=ques.quiz.chapter_id, quiz_name=ques.quiz.quiz_name,name=session.get("name")))
+        return redirect(url_for('quizManagement_dashboard', chapter_id=ques.quiz.chapter_id, quiz_name=ques.quiz.quiz_name))
     # Render an edit form (create a template edit_ques.html accordingly)
     return render_template("edit_question.html", ques=ques)
 
@@ -587,7 +577,7 @@ def delete_question(id):
     db.session.delete(ques)
     db.session.commit()
     flash("Quiz deleted successfully", "success")
-    return redirect(url_for('quizManagement_dashboard', chapter_id=ques.quiz.chapter_id, quiz_name=ques.quiz.quiz_name,name=session.get("name")))
+    return redirect(url_for('quizManagement_dashboard', chapter_id=ques.quiz.chapter_id, quiz_name=ques.quiz.quiz_name))
 
 #Search Functionality
 @app.route('/search/<string:name>', methods=['POST'])
